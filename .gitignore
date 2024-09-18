@@ -1,3 +1,5 @@
 .venv
 docs
 *.zip
+__pycache__
+*.out
