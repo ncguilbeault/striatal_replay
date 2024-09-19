@@ -134,27 +134,20 @@ def get_max_trajectory_duration(trajectories_df):
     first = trajectories_df.groupby("trial_id").agg("first")["camera_time"]
     return np.max(last - first)
 
-def align_ephys_data(main_processor_tuple, aux_processor_tuples, session_path=None, synch_channel=1):
-    session_data = Session(str(session_path))
-    if len(session_data.recordnodes) != 1:
-        raise ValueError("should be exactly one record node.")
-    if len(session_data.recordnodes[0].recordings) != 1:
-        raise ValueError("Should be exactly one recording.")
-    for rn, recordnode in enumerate(session_data.recordnodes):
-        for r, recording in enumerate(recordnode.recordings):
-            recording.add_sync_line(
-                synch_channel,
-                main_processor_tuple[0],
-                main_processor_tuple[1],
-                main=True,
-            )
-            for aux_processor in aux_processor_tuples:
-                recording.add_sync_line(
-                    synch_channel,
-                    aux_processor[0],
-                    aux_processor[1],
-                    main=False,
-                )
-            print('this should be zero:')
-            print(rn)
-    return recording
+def get_ephys_timestamps(ephys_folder):
+    session_data = Session(ephys_folder)
+    recording = session_data.recordnodes[0].recordings[0]
+    recording.add_sync_line(1, 102, '0', main=True)
+    recording.compute_global_timestamps()
+    ephys_timestamps = recording.continuous[2].global_timestamps
+    return ephys_timestamps
+
+def get_spike_matrix(spike_clusters, cutoff = np.Inf):
+    cutoff = np.min([cutoff, len(spike_clusters)])
+    unique_clusters = np.unique(spike_clusters)
+    clusters_count = len(unique_clusters)
+    clusters_mapping = np.arange(np.max(spike_clusters)+1)
+    clusters_mapping[unique_clusters] = np.arange(clusters_count)
+    spikes = np.zeros((clusters_count, cutoff), dtype=int)
+    spikes[clusters_mapping[spike_clusters][:cutoff], np.arange(spikes.shape[1])] = 1
+    return spikes
