@@ -98,7 +98,7 @@ class KalmanFilter():
             self.Q = self.Qe*self.sigma_a
 
         if estimate_m0:
-            self.m0 = optim_res_ga["x"]["m0"][:, np.newaxis]
+            self.m0 = optim_res_ga["x"]["m0"]
 
         if estimate_V0:
             self.sqrt_diag_V0_value = optim_res_ga["x"]["sqrt_diag_V0"][0]
