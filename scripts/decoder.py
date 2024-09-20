@@ -58,8 +58,7 @@ if __name__ == "__main__":
                                     place_bin_size=np.sqrt(movement_var))
     
     start = 0
-    # trial_count = int(len(idxs) * 0.9)
-    trial_count = 1
+    trial_count = int(len(idxs) * 0.45)
     end = idxs[trial_count]
     time_mask = get_time_mask_where_spikes_occur_in_window(spikes, start, end)
     print("Fitting decoder.")
